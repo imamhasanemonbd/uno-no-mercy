@@ -1,6 +1,6 @@
 # No Mercy
 
-A lightweight private-room browser card game. Node 22+ and one dependency (`ws`).
+A lightweight private-room browser card game. Node 22+ for local development. Cloudflare Workers + Durable Objects for deployment.
 
 ```sh
 npm install
@@ -23,12 +23,37 @@ Per color: two of every number 0–9; three each Skip, Reverse, +2, Discard All;
 
 A playable card drawn during a normal draw must be played before the turn advances; Wild color and 7 swap target remain player choices. UNO calls and catches are resolved in server arrival order until the next player starts. Roulette’s chosen color becomes the active color. Playing the final card wins immediately, including a final 0 or 7. Single-round wins only; optional points scoring and the separate expansion pack are not included.
 
-## Deployment
+## Cloudflare deployment (GitHub auto-deploy)
 
-Deploy `npm start` on a Node host that supports long-lived WebSocket connections, with HTTPS and WebSocket upgrade forwarding. Configure playnomercy.uno in that provider, then add its required DNS records. For players in Bangladesh, choose a nearby available region such as Singapore after comparing latency.
+The repository is ready for Workers Builds; no separate backend host is needed. `worker.js` serves the frontend through Workers Static Assets and routes each room to its own SQLite-backed Durable Object. State is saved after each accepted action, and idle WebSockets use hibernation. Empty rooms expire after one hour without connected players. `npm start` still runs the in-memory Node server locally.
 
-Rooms live in memory in one server process. Restarting the process clears rooms; do not enable multiple replicas without shared room routing/state. Empty rooms expire after one hour. A disconnected player retains their seat and turn until they reconnect; there is no turn timeout yet. The external Google Fonts stylesheet is optional; system fonts are used if unavailable.
+In Cloudflare **Workers & Pages → Create application → Connect GitHub**, select `imamhasanemonbd/uno-no-mercy`:
+
+| Setting | Value |
+| --- | --- |
+| Project name | `uno-no-mercy` (matches `wrangler.jsonc`) |
+| Production branch | `main` |
+| Root directory | Repository root |
+| Build command | Leave empty |
+| Deploy command | `npx wrangler deploy` |
+| Preview command | Keep Cloudflare’s default `npx wrangler preview` |
+
+Deploy, then test the generated workers.dev URL with two devices. Future pushes to `main` trigger deployment automatically. The first deployment provisions the `GameRoom` Durable Object namespace through the checked-in migration; no manual database or binding creation is needed.
+
+To connect `playnomercy.uno`, first add it to your Cloudflare account and complete nameserver setup. Once the zone is active, open the Worker → **Settings → Domains & Routes → Add → Custom Domain** and enter `playnomercy.uno`. Cloudflare configures the domain’s DNS record and HTTPS certificate. Resolve any existing conflicting record for that hostname before adding it.
+
+Cloudflare account and usage limits apply; use its dashboard to monitor requests and Durable Object storage. Multiplayer latency depends on the players’ networks and room location, rather than static asset loading alone.
+
+### Local Cloudflare runtime
+
+```sh
+npm run dev:cloudflare
+```
+
+Open the printed localhost URL (usually port 8787). `.wrangler/` stores local state and is ignored by Git. No Cloudflare account is needed for local development or tests. `npm run check:cloudflare` checks deployment bundling without publishing. `npm run deploy` publishes when run from an authenticated Cloudflare environment.
+
+The Cloudflare backend persists rooms across runtime restarts and reconnects. The optional Node backend keeps rooms in a single process: restarting it clears rooms, and multiple Node replicas require shared room routing/state. In either backend, a disconnected player retains their turn until reconnecting; there is no turn timeout. The Google Fonts stylesheet is optional; system fonts are used if unavailable.
 
 ## Checks
 
-`npm test` runs game-rule and real WebSocket integration tests. Never publish real player tokens; they permit reconnecting to that player’s hand.
+`npm test` runs game-rule tests plus real WebSocket tests for Node and the Cloudflare runtime, including storage recovery after a restart. Never publish real player tokens; they permit reconnecting to that player’s hand.

@@ -1,1 +1,20 @@
-{"name":"play-no-mercy","version":"1.0.0","private":true,"type":"module","scripts":{"start":"node server.js","dev":"node --watch server.js","test":"node --test"},"dependencies":{"ws":"^8.18.3"}}
+{
+  "name": "play-no-mercy",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test",
+    "dev:cloudflare": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "check:cloudflare": "wrangler deploy --dry-run"
+  },
+  "dependencies": {
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "wrangler": "^4.156.2"
+  }
+}

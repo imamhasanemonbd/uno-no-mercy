@@ -20,7 +20,7 @@ function send(data){if(socket?.readyState!==WebSocket.OPEN){toast('Reconnecting 
 function connect(info){
  clearTimeout(reconnectTimer);if(socket){socket.onclose=null;socket.close();}leaving=false;
  app.querySelectorAll('form button').forEach(b=>b.disabled=true);
- socket=new WebSocket(`${location.protocol==='https:'?'wss':'ws'}://${location.host}`);
+ socket=new WebSocket(`${location.protocol==='https:'?'wss':'ws'}://${location.host}/room/${info.type==='create'?'new':encodeURIComponent(info.code)}`);
  socket.onopen=()=>{attempts=0;send({...info,token:session?.code===info.code?session.token:undefined});};
  socket.onmessage=e=>{const data=JSON.parse(e.data);if(data.type==='session'){session={name:info.name,code:data.code,token:data.token};sessionStorage.setItem('nomercy-session',JSON.stringify(session));history.replaceState(null,'',`?room=${session.code}`);}if(data.type==='state'){const previous=state;state=data.state;renderRoom(previous);}if(data.type==='error'){toast(data.message);if(info.token&&/Room not found|already started/.test(data.message)){state=null;session=null;sessionStorage.removeItem('nomercy-session');socket.onclose=null;socket.close();home();}else if(!state){app.querySelectorAll('form button').forEach(b=>b.disabled=false);}}};
  socket.onerror=()=>toast('Cannot reach the game server. Please try again.');

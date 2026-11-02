@@ -16,7 +16,7 @@ export function deck() {
  for(const [value,count] of [['reverse+4',8],['roulette',8],['+6',4],['+10',4]])add('wild',value,count);
  return shuffle(cards);
 }
-export function player(name) { return {id:randomUUID(),name,hand:[],out:false}; }
+export function player(name) { return {id:randomUUID(),token:randomUUID(),name,hand:[],out:false}; }
 function event(room,type,actor,details={}){room.event={id:(room.event?.id||0)+1,type,actor,draws:[],...details};}
 export function start(room) {
  if(room.phase==='playing')throw Error('This game has already started.');

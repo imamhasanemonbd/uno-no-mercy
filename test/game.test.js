@@ -90,3 +90,5 @@ test('drawn-card identity is private while public animation exposes only its cou
  const r=table(),p=r.players[0];p.hand=[c('keep','blue','3')];r.deck=[c('secret','red','8')];act(r,p.id,{type:'draw'});
  assert.equal(view(r,p.id).drawn,'secret');assert.equal(view(r,r.players[1].id).drawn,null);assert.equal(JSON.stringify(view(r,r.players[1].id)).includes('secret'),false);
 });
+
+test('public seat IDs cannot be used as reconnect credentials',()=>{const r=table(),a=r.players[0],b=r.players[1];assert.notEqual(a.id,a.token);const visible=JSON.stringify(view(r,a.id));assert.equal(visible.includes(a.token),false);assert.equal(visible.includes(b.token),false);});
