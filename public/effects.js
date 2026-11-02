@@ -1,18 +1,15 @@
-// Compare public snapshots only; opponents' card identities never leave the server.
-export function tableEffects(previous, next) {
-  if (!previous || previous.code !== next.code || previous.phase !== 'playing') return {draws:[],played:null};
-  const draws=next.players.flatMap(p=>{
-    const before=previous.players.find(old=>old.id===p.id);
-    return before&&p.count>before.count?[{id:p.id,count:p.count-before.count}]:[];
-  });
-  const played=next.top?.id!==previous.top?.id?next.top:null;
-  let blocked=null;
-  if(played?.value==='skip') {
-    let index=previous.players.findIndex(p=>p.id===previous.turn);
-    for(let i=0;i<previous.players.length;i++) {
-      index=(index+previous.direction+previous.players.length)%previous.players.length;
-      if(!previous.players[index].out){blocked=previous.players[index].id;break;}
-    }
-  }
-  return {draws,played,blocked};
+// Animation events contain only public actions, never opponents' card faces.
+export function tableEffects(previous,next){
+ const empty={draws:[],played:null,transfers:[]};
+ const event=next.event;
+ if(!previous||previous.code!==next.code||!event||previous.event?.id===event.id)return empty;
+ if(event.type==='deal')return {...empty,deal:true,draws:next.players.map(p=>({id:p.id,count:7}))};
+ if(previous.phase!=='playing')return empty;
+ const transfers=[];
+ if(event.transfer==='swap')transfers.push({from:event.actor,to:event.target},{from:event.target,to:event.actor});
+ if(event.transfer==='pass'){
+  const active=previous.players.filter(p=>!p.out);
+  active.forEach((p,i)=>transfers.push({from:p.id,to:active[(i+previous.direction+active.length)%active.length].id}));
+ }
+ return {revealed:event.revealed||[],draws:event.draws||[],played:event.card||null,actor:event.actor,blocked:event.card?.value==='skip'?event.target:null,transfers};
 }

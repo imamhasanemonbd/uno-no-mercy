@@ -11,11 +11,17 @@ Open http://localhost:3000. Create a room, copy its invite link, and have a seco
 
 ## Included
 
-2–6 players, host-controlled start, private hands, cryptographic shuffle, server-side move validation, color matching, Skip, Reverse, Wild, +2/+4/+6/+10, equal-or-higher draw stacking, 25-card elimination, rematches and reconnects. Original SVG-like CSS card artwork, mobile layout and reduced-motion support. Room identity is stored per tab; use separate profiles for separate players.
+2–6 players, host-controlled start, private hands, cryptographic shuffle, server-side move validation, 168-card base deck, Skip, Reverse, Discard All, Skip Everyone, colored +2/+4, Wild Reverse +4, Wild +6/+10, Color Roulette, equal-or-higher draw stacking, 7 hand swaps, 0 hand passing, draw-until-playable, UNO calls/catches, 25-card elimination, rematches and reconnects. Original CSS card artwork, mobile landscape layout, fullscreen control, scrollable hands and reduced-motion support. Room identity is stored per tab; use separate profiles for separate players.
 
-## House rules
+Animations use public, numbered server events: played cards fly from their player to the pile, draws cascade from the deck, hand exchanges animate separately from penalties, and each new round deals cards with staggered motion. Repeated state broadcasts do not replay the same event. Private hand identities are never included in animation events. Roulette reveals only cards that its rule makes public.
 
-This is a simplified No Mercy inspired game, not a reproduction of the official deck or rules. Drawing ends the turn; no 0/7 swaps, roulette or UNO-call penalties. The house rules are visible in the app.
+## Deck and rules
+
+Base-game rules: [Mattel instructions](https://service.mattel.com/instruction_sheets/HVW18-Eng.pdf). The official sheet confirms 168 cards and action rules but does not itemize copy counts; the [counted breakdown](https://ruthlessgame.com/blog/uno/todas-las-cartas) is used for the copy counts.
+
+Per color: two of every number 0–9; three each Skip, Reverse, +2, Discard All; two each colored +4 and Skip Everyone. Wilds: eight Reverse +4, eight Color Roulette, four +6, four +10. Total 168. There is no plain Wild card in this deck.
+
+A playable card drawn during a normal draw must be played before the turn advances; Wild color and 7 swap target remain player choices. UNO calls and catches are resolved in server arrival order until the next player starts. Roulette’s chosen color becomes the active color. Playing the final card wins immediately, including a final 0 or 7. Single-round wins only; optional points scoring and the separate expansion pack are not included.
 
 ## Deployment
 

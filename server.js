@@ -4,7 +4,7 @@ import { randomBytes } from 'node:crypto';
 import { WebSocketServer,WebSocket } from 'ws';
 import { player,start,act,view } from './game.js';
 const rooms=new Map();
-const files={'/':['index.html','text/html'],'/app.js':['app.js','text/javascript'],'/effects.js':['effects.js','text/javascript'],'/style.css':['style.css','text/css'],'/favicon.svg':['favicon.svg','image/svg+xml']};
+const files={'/':['index.html','text/html'],'/app.js':['app.js','text/javascript'],'/effects.js':['effects.js','text/javascript'],'/rules.js':['rules.js','text/javascript'],'/style.css':['style.css','text/css'],'/favicon.svg':['favicon.svg','image/svg+xml']};
 const server=createServer(async(req,res)=>{
   const file=files[new URL(req.url,'http://localhost').pathname];
   if(!file){res.writeHead(404);res.end('Not found');return;}
